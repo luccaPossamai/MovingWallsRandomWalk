@@ -6,11 +6,14 @@
 
 #define L		128
 #define FORCE_SEED  0
-#define DETA        1e-4
+#define DETA        1e-2
 #define TMAX        1e6
 #define TTICS       100
+#define TSTAT       1e5
 #define SCALE       0 // 0 -> LINEAR
                       // 1 -> LOG
+#define MODE        0 // 0 -> temporal
+                      // 1 -> correlation time
 void simulate(void);
 void setup(void);
 void mergeTemporaryValues(void);
@@ -23,7 +26,7 @@ void onParticleUpdate(int);
 FILE *f;
 unsigned int seed;
 int xA, xB, xM, tempXA, tempXB, tempXM;
-float etaA, etaB, timeT;
+float etaA, etaB, timeT, lastMeasure = 0;
 
 
 int main() {
@@ -86,7 +89,16 @@ int onTimeSimulate(float timeTarget) {
     return 1;
 }
 void takeMeasures(float timeTarget){
-    fprintf(f, "%.2f %d %d %d %d\n", timeTarget, xA, xB, xM, xB - xA);
+    if(MODE == 0){
+        
+        fprintf(f, "%.2f %d %d %d %d\n", timeTarget, xA, xB, xM, xB - xA);
+    } else if(MODE == 1){
+     
+        lastMeasure = lastMeasure == 0 ? xB - xA;
+        fprintf(f, "%.2f %.3f %.3f\n", timeTarget, lastMeasure * (xA - xB), xB - xA);
+        
+    }
+    
 }
 //0 = A, 1 = M, 2 = B;
 void onParticleUpdate(int particle){
