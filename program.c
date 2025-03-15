@@ -6,9 +6,9 @@
 
 #define L		128
 #define FORCE_SEED  0
-#define DETA        1e-3
-#define TMAX        1e4
-#define TTICS       30
+#define DETA        1e-4
+#define TMAX        1e6
+#define TTICS       100
 #define SCALE       0 // 0 -> LINEAR
                       // 1 -> LOG
 void simulate(void);
@@ -94,8 +94,8 @@ void onParticleUpdate(int particle){
     switch(particle){
         case 1:
             tempXM += randomIntOf(-1, 2);
-            int dx = tempXM == tempXA ? +1 : tempXM == tempXB ? -1 : 0;
-            tempXM += dx;
+            if(tempXM == tempXA) tempXA--;
+            if(tempXM == tempXB) tempXB++;
             break;
         case 0:
             etaA += DETA;
@@ -103,7 +103,7 @@ void onParticleUpdate(int particle){
                 etaA = 0;
                 tempXA++;
                 if(tempXA == tempXM){
-                    tempXA--;
+                    tempXM++;
                 }
             }
             break;
@@ -113,7 +113,7 @@ void onParticleUpdate(int particle){
                 etaB = 0;
                 tempXB--;
                 if(tempXB == tempXM){
-                    tempXB++;
+                    tempXM--;
                 }
             }
             break;
