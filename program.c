@@ -32,7 +32,7 @@ int main() {
     char name[50];
     sprintf(name, "data/data_W_L%d", L);
     f = safeSeedOpen(name, ".dat", &seed, 0);
-    fprintf(f, "t, xA, xB, xM, W\n");
+    fprintf(f, "#t, xA, xB, xM, W\n");
     simulate();
     fclose(f);
     
@@ -86,7 +86,7 @@ int onTimeSimulate(float timeTarget) {
     return 1;
 }
 void takeMeasures(float timeTarget){
-    fprintf(f, "%.2f %d %d %d %d\n", timeTarget, xA, xB, xM, xB - xB);
+    fprintf(f, "%.2f %d %d %d %d\n", timeTarget, xA, xB, xM, xB - xA);
 }
 //0 = A, 1 = M, 2 = B;
 void onParticleUpdate(int particle){
