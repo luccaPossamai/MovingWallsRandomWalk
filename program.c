@@ -9,14 +9,14 @@
 
 #define DETA        1e-2
 #define TMAX        1e6
-#define TMIN        1e4
-#define TTICS       100
+#define TMIN        1
+#define TTICS       30
 
 
 #define DETAMAX     1
 #define DETAMIN     1e-5
 
-#define SCALE       0 // 0 -> LINEAR
+#define SCALE       1 // 0 -> LINEAR
                       // 1 -> LOG
 #define MODE        0 // 0 -> temporal
                       // 1 -> correlation time
