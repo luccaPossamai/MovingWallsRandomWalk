@@ -4,10 +4,10 @@
 #include <fhelper.h>
 #include <monte_carlo.h>
 
-#define L		128
+#define L		2
 #define FORCE_SEED  0
 
-#define DETA        1e-6
+#define DETA        1e-2
 #define TMAX        1e6
 #define TMIN        1
 #define TTICS       30
@@ -156,9 +156,11 @@ void onParticleUpdate(int particle){
             // if it hits some of the outer particles these one gets pushed 
             if(tempXM == tempXA) {
                 tempXA--;
+                etaA = 0;
             }
             if(tempXM == tempXB) {
                 tempXB++;
+                etaB = 0;
             }
             break;
         case 0:
