@@ -7,7 +7,7 @@
 #define L		128
 #define FORCE_SEED  0
 
-#define DETA        1e-2
+#define DETA        1e-6
 #define TMAX        1e6
 #define TMIN        1
 #define TTICS       30
@@ -34,8 +34,8 @@ void onParticleUpdate(int);
 FILE *f;
 unsigned int seed;
 int xA, xB, xM, tempXA, tempXB, tempXM;
-double dEta = DETA;
-float etaA, etaB, tempEtaA, tempEtaB, timeT, lastMeasure = 0;
+float dEta = DETA;
+float etaA, etaB, timeT, lastMeasure = 0;
 
 
 int main() {
@@ -91,16 +91,12 @@ void setup(){
     tempXA = xA;
     tempXB = xB;
     tempXM = xM;
-    tempEtaA = etaA;
-    tempEtaB = etaB;
 }
 
 void mergeTemporaryValues(){
     xA = tempXA;
     xB = tempXB;
     xM = tempXM;
-    etaA = tempEtaA;
-    etaB = tempEtaB;
 }
 
 int onTimeSimulate(float timeTarget) {
@@ -126,6 +122,7 @@ void writeSpecifications(void){
 	}
 	switch(MODE){
 	    case 0:
+	        fprintf(f, "# dEta: %.5f\n", dEta);
 	        fprintf(f, "# t, xA, xB, xM, W\n");
 	        break;
 	    case 1:
@@ -154,23 +151,32 @@ void onParticleUpdate(int particle){
     
     switch(particle){
         case 1:
+            // decides on which direction the inner particle will walk
             tempXM += randomIntOf(-1, 2);
+            // if it hits some of the outer particles these one gets pushed 
             if(tempXM == tempXA) {
                 tempXA--;
-                tempEtaA = 0; 
             }
             if(tempXM == tempXB) {
                 tempXB++;
-                tempEtaB = 0;
             }
             break;
         case 0:
             etaA += dEta;
             if(etaA >= 1.0){
                 etaA = 0;
+                // outer particles walks
                 tempXA++;
                 if(tempXA == tempXM){
+                    // if outer particles hits inner particle
+                    // it pushes the inner one
                     tempXM++;
+                    if(tempXM == tempXB){
+                        // if the inner particle hits the other outer particle
+                        // return to the intial state
+                        tempXM--;
+                        tempXA--;
+                    }
                 }
             }
             break;
@@ -179,8 +185,13 @@ void onParticleUpdate(int particle){
             if(etaB >= 1.0){
                 etaB = 0;
                 tempXB--;
+                
                 if(tempXB == tempXM){
                     tempXM--;
+                    if(tempXM == tempXA) {
+                        tempXM++;
+                        tempXB++;
+                    }
                 }
             }
             break;
