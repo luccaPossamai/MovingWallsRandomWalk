@@ -4,36 +4,35 @@
 #include <fhelper.h>
 #include <monte_carlo.h>
 
-#define L		2
 #define FORCE_SEED  0
 
 #define DETA        1e-2
 #define TMAX        1e6
 #define TMIN        1
-#define TTICS       30
+#define TTICS       60
 
 
 #define DETAMAX     1
-#define DETAMIN     1e-5
+#define DETAMIN     1e-4
 
 #define SCALE       1 // 0 -> LINEAR
                       // 1 -> LOG
-#define MODE        0 // 0 -> temporal
+#define MODE        2 // 0 -> temporal
                       // 1 -> correlation time
 void simulate(void);
 void setup(void);
 void mergeTemporaryValues(void);
 int onTimeSimulate(float);
 void writeSpecifications(void);
-
-
+void dEtaEvolution(void);
+float timeForDEta(float );
 void takeMeasures(float);
 void onParticleUpdate(int);
 
 
 FILE *f;
 unsigned int seed;
-int xA, xB, xM, tempXA, tempXB, tempXM;
+int xA, xB, xM, tempXA, tempXB, tempXM, W0 = 2;
 float dEta = DETA;
 float etaA, etaB, timeT, lastMeasure = 0;
 
@@ -42,10 +41,14 @@ int main() {
     seed = setupRandom(FORCE_SEED ? 123456789 : 0);
 
     char name[50];
-    sprintf(name, "data_W_L%d", L);
+    sprintf(name, "data_W_L%d", W0);
     f = safeSeedOpen(name, ".dat", &seed, 0);
     writeSpecifications();
-    simulate();
+    if(MODE != 2){
+        simulate();
+    } else {
+        dEtaEvolution();
+    }
     fclose(f);
     
 	return 0;
@@ -75,15 +78,17 @@ void dEtaEvolution(void){
     }
     for(int i = 0; i < TTICS; i++){
         dEta = dEta_arr[i];
+        //W0 = pow(dEta, -2.0 / 3.0);
         setup();
-        while(onTimeSimulate(TMAX)){}
+        float t_stat = timeForDEta(dEta);
+        while(onTimeSimulate(t_stat)){}
     
     }
 
 }
 void setup(){
-    xA = (int)(-L / 2);
-    xB = (int)( L / 2);
+    xA = (int)(-W0 / 2);
+    xB = (int)( W0 / 2);
     xM = 0;
     etaA = 0.0;
     etaB = 0.0;
@@ -131,6 +136,10 @@ void writeSpecifications(void){
 	}
     
 }
+float timeForDEta(float dEta){
+    return 1.0e2 / dEta;
+
+}
 
 void takeMeasures(float timeTarget){
     if(MODE == 0){
@@ -143,6 +152,8 @@ void takeMeasures(float timeTarget){
 
         fprintf(f, "%.2f %d %d %d\n", timeTarget, (int)lastMeasure * (xA - xB), xB - xA, (xB - xA) * (xB - xA));
         
+    } else if(MODE == 2){
+        fprintf(f, "%.2f %.5f %d\n", timeTarget, dEta, (xB - xA));
     }
     
 }
