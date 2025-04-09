@@ -271,11 +271,11 @@ void takeMeasures(float timeTarget){
 }
 //0 = A, 1 = M, 2 = B;
 void onParticleUpdate(int particle){
-    
+    int p;
     switch(particle){
         case 1:
             // decides on which direction the inner particle will walk
-            int p = (randomFloat() < .5) ? 1 : -1;
+            p = (randomFloat() < .5) ? 1 : -1;
             tempXM += p;
             // if it hits some of the outer particles these one gets pushed 
             if(tempXM == tempXA) {
